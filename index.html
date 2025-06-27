@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Tua MoneyCard</title>
+    <!-- Tailwind CSS CDN per uno stile moderno e reattivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Imposta il font Inter per un look moderno */
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Sfondo estivo e vibrante con gradiente */
+            background: linear-gradient(135deg, #a78bfa, #c084fc, #f472b6); /* Viola, Lilla, Rosa */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px; /* Padding per dispositivi mobili */
+            box-sizing: border-box;
+        }
+        /* Stile per i placeholder dei campi di input */
+        input::placeholder {
+            color: #a3a3a3; /* Grigio più chiaro per i placeholder */
+        }
+    </style>
+</head>
+<body>
+    <div class="max-w-md w-full bg-white p-8 rounded-3xl shadow-2xl border border-pink-300 transform transition-all duration-300 ease-in-out hover:scale-[1.01]">
+        <h1 class="text-4xl font-extrabold text-purple-700 mb-4 text-center leading-tight">Benvenuto,<br>fai la tua <span class="text-pink-500">MoneyCard</span>!</h1>
+        <p class="text-gray-600 mb-8 text-center text-lg">Pronto a sbloccare un mondo di vantaggi? Compila qui!</p>
+
+        <form id="customerForm" class="space-y-6">
+            <div>
+                <label for="nome" class="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                <input
+                    type="text"
+                    id="nome"
+                    name="nome"
+                    placeholder="Il tuo nome"
+                    required
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-pink-400 focus:border-pink-400 sm:text-base transition duration-300 ease-in-out transform hover:scale-105"
+                >
+            </div>
+            <div>
+                <label for="cognome" class="block text-sm font-medium text-gray-700 mb-1">Cognome</label>
+                <input
+                    type="text"
+                    id="cognome"
+                    name="cognome"
+                    placeholder="Il tuo cognome"
+                    required
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-pink-400 focus:border-pink-400 sm:text-base transition duration-300 ease-in-out transform hover:scale-105"
+                >
+            </div>
+            <!-- Campo nascosto per la data di invio -->
+            <input type="hidden" id="dataInvio" name="dataInvio">
+
+            <button
+                type="submit"
+                class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-xl font-bold text-white bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105 active:scale-95"
+            >
+                Voglio la mia MoneyCard!
+            </button>
+        </form>
+
+        <!-- Message Box per feedback utente, al posto di alert() -->
+        <div id="messageBox" class="mt-6 p-4 rounded-xl text-base hidden" role="alert">
+            <p id="messageText" class="font-medium"></p>
+        </div>
+    </div>
+
+    <script>
+        // Funzione per mostrare un messaggio personalizzato
+        function showMessage(message, type = 'success') {
+            const messageBox = document.getElementById('messageBox');
+            const messageText = document.getElementById('messageText');
+            messageText.textContent = message;
+
+            // Rimuovi classi precedenti per tipo di messaggio
+            messageBox.classList.remove('bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
+
+            // Aggiungi classi in base al tipo di messaggio
+            if (type === 'success') {
+                messageBox.classList.add('bg-green-100', 'text-green-800');
+            } else if (type === 'error') {
+                messageBox.classList.add('bg-red-100', 'text-red-800');
+            }
+            messageBox.classList.remove('hidden');
+
+            // Nascondi il messaggio dopo 5 secondi
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 5000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Ottieni la data e ora corrente e formatta per il campo nascosto
+            const now = new Date();
+            const options = {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false // Formato 24 ore
+            };
+            document.getElementById('dataInvio').value = now.toLocaleString('it-IT', options);
+
+            const form = document.getElementById('customerForm');
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault(); // Impedisce il ricaricamento della pagina
+
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+
+                // IMPORTANT: Questo URL verrà generato nel Passaggio 3. Tornerai qui per incollarlo.
+                const googleAppsScriptURL = 'https://script.google.com/macros/s/AKfycbx-K5dzkAjuL16OJzANgFWUdKozxmi3eePZSH4n8hM0j0Y_l9lDIceeoMROEACQ_14yFw/exec';
+
+                if (googleAppsScriptURL === 'INSERISCI_QUI_L_URL_DEL_TUO_GOOGLE_APPS_SCRIPT') {
+                    showMessage('Errore: Devi configurare l\'URL del Google Apps Script. Segui il Passaggio 3.', 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(googleAppsScriptURL, {
+                        method: 'POST',
+                        mode: 'no-cors', // Importante per evitare problemi CORS con Google Apps Script
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded', // FormData è già url-encoded
+                        },
+                        body: new URLSearchParams(data).toString(), // Serializza i dati per l'invio
+                    });
+
+                    // Dato che usiamo mode: 'no-cors', non possiamo leggere la risposta direttamente.
+                    // Assumiamo il successo e mostriamo un messaggio all'utente.
+                    // Puoi controllare il Google Sheet per confermare la ricezione dei dati.
+                    showMessage('Dati inviati con successo! Grazie.', 'success');
+                    form.reset(); // Resetta il modulo dopo l'invio
+                    // Aggiorna nuovamente la data per un nuovo invio
+                    document.getElementById('dataInvio').value = new Date().toLocaleString('it-IT', options);
+
+                } catch (error) {
+                    console.error('Errore durante l\'invio:', error);
+                    showMessage('Si è verificato un errore durante l\'invio dei dati. Riprova più tardi.', 'error');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
